@@ -17,10 +17,10 @@
         <Label Text="Correo"/>
         <Entry Text="{Binding UsuarioDto.Correo}" Margin="0,0,0,10"/>
 
-        <Label Text="Sueldo"/>
-        <Entry Text="{Binding UsuarioDto.Telefono}" Keyboard="Numeric" Margin="0,0,0,10"/>
+        <Label Text="Telefono"/>
+        <Entry Text="{Binding UsuarioDto.Telefono}" Margin="0,0,0,10"/>
 
-        <Label Text="Fecha Contrato"/>
+        <Label Text="Fecha "/>
         <DatePicker Date="{Binding UsuarioDto.Fecha}" Margin="0,0,0,10"/>
 
         <Button Text="Guardar" Command="{Binding GuardarCommand}" BackgroundColor="Green"/>

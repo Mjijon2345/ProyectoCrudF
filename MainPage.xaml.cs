@@ -1,16 +1,19 @@
 ﻿using ProyectoCrudF.ViewModels;
 
-namespace ProyectoCrudF;
-
-public partial class MainPage : ContentPage
+namespace ProyectoCrudF
 {
-	int count = 0;
+    public partial class MainPage : ContentPage
+    {
+        int count = 0;
 
-	public MainPage(MainViewModel viewModel)
-	{
-		InitializeComponent();
-		BindingContext = viewModel;
-	}
+        public MainPage(MainViewModel viewModel)
+        {
+            InitializeComponent();
+            BindingContext = viewModel;
+        }
 
+    }
 }
+
+
 

@@ -38,15 +38,15 @@ namespace ProyectoCrudF.ViewModels
 
             if (IdUsuario == 0)
             {
-                TituloPagina = "Nuevo Empleado";
+                TituloPagina = "Nuevo Usuario";
             }
             else
             {
-                TituloPagina = "Editar Empleado";
+                TituloPagina = "Editar Usuario";
                 LoadingEsVisible = true;
                 await Task.Run(async () =>
                 {
-                    var encontrado = await _dbContext.Usuario.FirstAsync(e => e.IdUsuario == IdUsuario);
+                    var encontrado = await _dbContext.Usuarios.FirstAsync(e => e.IdUsuario == IdUsuario);
                     UsuarioDto.IdUsuario = encontrado.IdUsuario;
                     UsuarioDto.NombreCompleto = encontrado.NombreCompleto;
                     UsuarioDto.Correo = encontrado.Correo;
@@ -76,10 +76,10 @@ namespace ProyectoCrudF.ViewModels
                         Fecha = UsuarioDto.Fecha,
                     };
 
-                    _dbContext.Usuario.Add(tbUsuario);
+                    _dbContext.Usuarios.Add(tbUsuario);
                     await _dbContext.SaveChangesAsync();
 
-                    UsuarioDto.IdUsuario = UsuarioDto.IdUsuario;
+                    UsuarioDto.IdUsuario = tbUsuario.IdUsuario;
                     mensaje = new UsuarioMensaje()
                     {
                         EsCrear = true,
@@ -89,7 +89,7 @@ namespace ProyectoCrudF.ViewModels
                 }
                 else
                 {
-                    var encontrado = await _dbContext.Usuario.FirstAsync(e => e.IdUsuario == IdUsuario);
+                    var encontrado = await _dbContext.Usuarios.FirstAsync(e => e.IdUsuario == IdUsuario);
                     encontrado.NombreCompleto = UsuarioDto.NombreCompleto;
                     encontrado.Correo = UsuarioDto.Correo;
                     encontrado.Telefono = UsuarioDto.Telefono;

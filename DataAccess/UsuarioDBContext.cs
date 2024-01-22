@@ -6,11 +6,11 @@ namespace ProyectoCrudF.DataAccess
 {
     public class UsuarioDbContext : DbContext
     {
-        public DbSet<Usuario> Usuario { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string conexionDB = $"Filename={ConexionDB.DevolverRuta("usuario.db")}";
+            string conexionDB = $"Filename={ConexionDB.DevolverRuta("usuarios.db")}";
             optionsBuilder.UseSqlite(conexionDB);
         }
 

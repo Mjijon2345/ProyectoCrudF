@@ -32,7 +32,7 @@ namespace ProyectoCrudF.ViewModels
 
         public async Task Obtener()
         {
-            var lista = await _dbContext.Usuario.ToListAsync();
+            var lista = await _dbContext.Usuarios.ToListAsync();
             if (lista.Any())
             {
                 foreach (var item in lista)
@@ -81,7 +81,7 @@ namespace ProyectoCrudF.ViewModels
         [RelayCommand]
         private async Task Editar(UsuarioDTO usuarioDto)
         {
-            var uri = $"{nameof(Usuario)}?id={usuarioDto.IdUsuario}";
+            var uri = $"{nameof(UsuarioPage)}?id={usuarioDto.IdUsuario}";
             await Shell.Current.GoToAsync(uri);
         }
 
@@ -92,10 +92,10 @@ namespace ProyectoCrudF.ViewModels
 
             if (answer)
             {
-                var encontrado = await _dbContext.Usuario
+                var encontrado = await _dbContext.Usuarios
                     .FirstAsync(e => e.IdUsuario == usuarioDto.IdUsuario);
 
-                _dbContext.Usuario.Remove(encontrado);
+                _dbContext.Usuarios.Remove(encontrado);
                 await _dbContext.SaveChangesAsync();
                 ListaUsuario.Remove(usuarioDto);
 

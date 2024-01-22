@@ -39,7 +39,7 @@
                                     Text="{Binding Correo}" />
 
                                 <Label Grid.Row="2" Grid.Column="0"
-                                    Text="Sueldo:" FontAttributes="Bold"/>
+                                    Text="Telefono:" FontAttributes="Bold"/>
                                 <Label Grid.Row="2" Grid.Column="1" HorizontalOptions="End"
                                     Text="{Binding Telefono, StringFormat='{0:C}'}" />
 
