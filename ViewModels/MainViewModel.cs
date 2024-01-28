@@ -1,108 +1,84 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.Mvvm.Input;
+﻿using System.Threading.Tasks;
 
-using Microsoft.EntityFrameworkCore;
-using ProyectoCrudF.DataAccess;
-using ProyectoCrudF.DTOs;
-using ProyectoCrudF.Utilidades;
-using ProyectoCrudF.Modelos;
-using System.Collections.ObjectModel;
-using ProyectoCrudF.Views;
-
-namespace ProyectoCrudF.ViewModels
+public async Task Obtener()
 {
-    public partial class MainViewModel : ObservableObject
+    // Obtener la lista de usuarios desde la base de datos de manera asíncrona
+    var lista = await _dbContext.Usuarios.ToListAsync();
+
+    // Verificar si la lista de usuarios no está vacía
+    if (lista.Any())
     {
-        private readonly UsuarioDbContext _dbContext;
-        [ObservableProperty]
-        private ObservableCollection<UsuarioDTO> listaUsuario = new ObservableCollection<UsuarioDTO>();
-
-        public MainViewModel(UsuarioDbContext context)
+        // Iterar a través de cada usuario en la lista y agregarlo a la colección ListaUsuario
+        foreach (var item in lista)
         {
-            _dbContext = context;
-
-            MainThread.BeginInvokeOnMainThread(new Action(async () => await Obtener()));
-
-            WeakReferenceMessenger.Default.Register<UsuarioMensajeria>(this, (r, m) =>
+            ListaUsuario.Add(new UsuarioDTO
             {
-                UsuarioMensajeRecibido(m.Value);
+                IdUsuario = item.IdUsuario,
+                NombreCompleto = item.NombreCompleto,
+                Correo = item.Correo,
+                Telefono = item.Telefono,
+                Fecha = item.Fecha,
             });
         }
+    }
+}
 
-        public async Task Obtener()
-        {
-            var lista = await _dbContext.Usuarios.ToListAsync();
-            if (lista.Any())
-            {
-                foreach (var item in lista)
-                {
-                    ListaUsuario.Add(new UsuarioDTO
-                    {
-                        IdUsuario = item.IdUsuario,
-                        NombreCompleto = item.NombreCompleto,
-                        Correo = item.Correo,
-                        Telefono = item.Telefono,
-                        Fecha = item.Fecha,
-                    });
-                }
-            }
-        }
+private void UsuarioMensajeRecibido(UsuarioMensaje usuarioMensaje)
+{
+    var usuarioDto = usuarioMensaje.UsuarioDto;
 
-        private void UsuarioMensajeRecibido(UsuarioMensaje usuarioMensaje)
-        {
-            var usuarioDto = usuarioMensaje.UsuarioDto;
+    // Verificar si se está creando un usuario
+    if (usuarioMensaje.EsCrear)
+    {
+        // Agregar el nuevo usuario a la colección ListaUsuario
+        ListaUsuario.Add(usuarioDto);
+    }
+    else
+    {
+        // Encontrar el usuario existente en ListaUsuario por Id y actualizar sus propiedades
+        var encontrado = ListaUsuario
+            .First(e => e.IdUsuario == usuarioDto.IdUsuario);
 
-            if (usuarioMensaje.EsCrear)
-            {
-                ListaUsuario.Add(usuarioDto);
-            }
-            else
-            {
-                var encontrado = ListaUsuario
-                    .First(e => e.IdUsuario == usuarioDto.IdUsuario);
+        encontrado.NombreCompleto = usuarioDto.NombreCompleto;
+        encontrado.Correo = usuarioDto.Correo;
+        encontrado.Telefono = usuarioDto.Telefono;
+        encontrado.Fecha = usuarioDto.Fecha;
+    }
+}
 
-                encontrado.NombreCompleto = usuarioDto.NombreCompleto;
-                encontrado.Correo = usuarioDto.Correo;
-                encontrado.Telefono = usuarioDto.Telefono;
-                encontrado.Fecha = usuarioDto.Fecha;
+[RelayCommand]
+private async Task Crear()
+{
+    // Crear un nuevo usuario, navegando a la página de usuario con ID 0
+    var uri = $"{nameof(UsuarioPage)}?id=0";
+    await Shell.Current.GoToAsync(uri);
+}
 
-            }
+[RelayCommand]
+private async Task Editar(UsuarioDTO usuarioDto)
+{
+    // Editar un usuario existente, navegando a la página de usuario con el ID correspondiente
+    var uri = $"{nameof(UsuarioPage)}?id={usuarioDto.IdUsuario}";
+    await Shell.Current.GoToAsync(uri);
+}
 
-        }
+[RelayCommand]
+private async Task Eliminar(UsuarioDTO usuarioDto)
+{
+    // Mostrar un mensaje de confirmación antes de eliminar un usuario
+    bool answer = await Shell.Current.DisplayAlert("Mensaje", "Desea eliminar el Usuario?", "Si", "No");
 
-        [RelayCommand]
-        private async Task Crear()
-        {
-            var uri = $"{nameof(UsuarioPage)}?id=0";
-            await Shell.Current.GoToAsync(uri);
-        }
+    // Verificar si el usuario confirmó la eliminación
+    if (answer)
+    {
+        // Encontrar el usuario en la base de datos y eliminarlo
+        var encontrado = await _dbContext.Usuarios
+            .FirstAsync(e => e.IdUsuario == usuarioDto.IdUsuario);
 
-        [RelayCommand]
-        private async Task Editar(UsuarioDTO usuarioDto)
-        {
-            var uri = $"{nameof(UsuarioPage)}?id={usuarioDto.IdUsuario}";
-            await Shell.Current.GoToAsync(uri);
-        }
+        _dbContext.Usuarios.Remove(encontrado);
+        await _dbContext.SaveChangesAsync();
 
-        [RelayCommand]
-        private async Task Eliminar(UsuarioDTO usuarioDto)
-        {
-            bool answer = await Shell.Current.DisplayAlert("Mensaje", "Desea eliminar el Usuario?", "Si", "No");
-
-            if (answer)
-            {
-                var encontrado = await _dbContext.Usuarios
-                    .FirstAsync(e => e.IdUsuario == usuarioDto.IdUsuario);
-
-                _dbContext.Usuarios.Remove(encontrado);
-                await _dbContext.SaveChangesAsync();
-                ListaUsuario.Remove(usuarioDto);
-
-            }
-
-        }
-
-
+        // Eliminar el usuario de la colección ListaUsuario
+        ListaUsuario.Remove(usuarioDto);
     }
 }
